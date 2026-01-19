@@ -279,7 +279,7 @@ def main(config_path: str):
         weight_decay=float(training_config.get("weight_decay", 0.01)),
         warmup_steps=training_config.get("warmup_steps", 500),
         logging_steps=training_config.get("logging_steps", 100),
-        evaluation_strategy="steps" if val_dataset else "no",
+        eval_strategy="steps" if val_dataset else "no",
         eval_steps=training_config.get("eval_steps", 500),
         save_strategy="steps",
         save_steps=training_config.get("save_steps", 1000),
