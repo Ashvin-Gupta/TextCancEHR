@@ -21,7 +21,7 @@ import yaml
 from huggingface_hub import login
 from transformers import TrainerCallback, TrainingArguments, TextIteratorStreamer
 from datasets import Dataset
-from trl import SFTTrainer
+from trl import SFTTrainer, SFTConfig
 
 from src.data.unified_dataset import UnifiedEHRDataset
 from src.tokenization.ehr_special_tokens import EHRTokenExtensionStaticTokenizer
