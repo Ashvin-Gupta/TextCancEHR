@@ -300,7 +300,7 @@ def main(config_path: str):
     inference_callback = InferenceCallback(model, tokenizer, DEFAULT_INFERENCE_PROMPT)
     trainer = SFTTrainer(
         model=model,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
         train_dataset=train_dataset,
         eval_dataset=val_dataset,
         dataset_text_field="text",
