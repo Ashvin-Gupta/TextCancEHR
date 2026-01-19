@@ -1,9 +1,9 @@
 #!/bin/bash
 #$ -cwd                 
-#$ -pe smp 24
+#$ -pe smp 12
 #$ -l h_rt=1:0:0
 #$ -l h_vmem=7.5G
-#$ -l gpu=2
+#$ -l gpu=1
 #$ -l gpu_type=ampere
 #$ -l cluster=andrena
 #$ -j n
@@ -28,7 +28,8 @@ cd "${BASE_DIR}"
 echo "Starting experiment from directory: $(pwd)"
 export PYTHONPATH="${BASE_DIR}:${PYTHONPATH}"
 
-torchrun --nproc_per_node=2 src/cli/pretrain_llm.py --config_filepath configs/llm_pretrain.yaml
+python -m src.cli.pretrain_llm --config_filepath configs/llm_pretrain.yaml
+# torchrun --nproc_per_node=2 src/cli/pretrain_llm.py --config_filepath configs/llm_pretrain.yaml
 # torchrun --nproc_per_node=2 src/pipelines/llm_pretrain2.py --config_filepath configs/llm_pretrain.yaml
 
 echo "Pipeline finished."
