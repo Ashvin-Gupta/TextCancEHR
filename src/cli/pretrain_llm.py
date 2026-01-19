@@ -57,8 +57,11 @@ DEFAULT_INFERENCE_PROMPT = (
 )
 
 
-def extract_text(base_dataset, tokenizer):
-    """Extract all valid text narratives from the dataset."""
+def extract_text(base_dataset, tokenizer, max_seq_length=8192):
+    """
+    Extract all valid text narratives from the dataset.
+    Long sequences are split into chunks of max_seq_length tokens.
+    """
     text_list = []
 
     print(f"  - Processing {len(base_dataset)} patients...")
@@ -67,9 +70,26 @@ def extract_text(base_dataset, tokenizer):
         if item is not None:
             text = item["text"]
             text = text.replace("<start>", "").replace("<end>", "").strip()
-            text_list.append(text)
+            
+            # Tokenize to check length
+            tokens = tokenizer.encode(text, add_special_tokens=False)
+            
+            if len(tokens) <= max_seq_length:
+                # Short enough - add as-is
+                text_list.append(text)
+            else:
+                # Too long - split into chunks
+                num_chunks = (len(tokens) + max_seq_length - 1) // max_seq_length
+                print(f"  - Patient {i}: {len(tokens)} tokens -> splitting into {num_chunks} chunks")
+                
+                for chunk_idx in range(num_chunks):
+                    start_idx = chunk_idx * max_seq_length
+                    end_idx = min(start_idx + max_seq_length, len(tokens))
+                    chunk_tokens = tokens[start_idx:end_idx]
+                    chunk_text = tokenizer.decode(chunk_tokens, skip_special_tokens=True)
+                    text_list.append(chunk_text)
 
-    print(f"  - Extracted {len(text_list)} valid narratives.")
+    print(f"  - Extracted {len(text_list)} sequences (after chunking long patients).")
     return text_list
 
 
@@ -244,9 +264,9 @@ def main(config_path: str):
     val_base_dataset = UnifiedEHRDataset(split="tuning", **dataset_args)
     print(f"  - Loaded {len(val_base_dataset)} validation patients")
 
-    train_text_list = extract_text(train_base_dataset, tokenizer)
-    val_text_list = extract_text(val_base_dataset, tokenizer)
-    verify_patient(train_text_list, tokenizer)
+    train_text_list = extract_text(train_base_dataset, tokenizer, model_config["max_length"])
+    val_text_list = extract_text(val_base_dataset, tokenizer, model_config["max_length"])
+    # verify_patient(train_text_list, tokenizer)
 
     train_dataset = Dataset.from_dict({"text": train_text_list})
     val_dataset = Dataset.from_dict({"text": val_text_list})
