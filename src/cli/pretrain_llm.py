@@ -14,6 +14,7 @@ from datetime import datetime
 from threading import Thread
 import textwrap
 
+from unsloth import FastLanguageModel
 import torch
 import wandb
 import yaml
@@ -21,7 +22,6 @@ from huggingface_hub import login
 from transformers import TrainerCallback, TrainingArguments, TextIteratorStreamer
 from datasets import Dataset
 from trl import SFTTrainer
-from unsloth import FastLanguageModel
 
 from src.data.unified_dataset import UnifiedEHRDataset
 from src.tokenization.ehr_special_tokens import EHRTokenExtensionStaticTokenizer
@@ -268,7 +268,7 @@ def main(config_path: str):
     )
     print("  - Applied LoRA adapters (PEFT) to the model.")
 
-    training_args = TrainingArguments(
+    training_args = SFTConfig(
         dataloader_num_workers=training_config.get("dataloader_num_workers", 8),
         output_dir=training_config["output_dir"],
         overwrite_output_dir=training_config.get("overwrite_output_dir", True),
@@ -295,6 +295,9 @@ def main(config_path: str):
         ddp_find_unused_parameters=False,
         gradient_checkpointing_kwargs={"use_reentrant": False},
         remove_unused_columns=False,
+        dataset_text_field="text",
+        max_seq_length=model_config["max_length"],
+        packing=True,
     )
 
     inference_callback = InferenceCallback(model, tokenizer, DEFAULT_INFERENCE_PROMPT)
@@ -303,10 +306,7 @@ def main(config_path: str):
         processing_class=tokenizer,
         train_dataset=train_dataset,
         eval_dataset=val_dataset,
-        dataset_text_field="text",
-        max_seq_length=model_config["max_length"],
         args=training_args,
-        packing=True,
         callbacks=[inference_callback],
     )
 
