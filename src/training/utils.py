@@ -141,15 +141,15 @@ def load_LoRA_model(config: dict):
     )
     print(f'Original tokenizer size: {len(tokenizer)}')
 
-    # STEP B: Load the tokenizer from your checkpoint to get the new vocab size
-    # This ensures we have the 151673 size including your 4 special tokens
-    checkpoint_tokenizer = AutoTokenizer.from_pretrained(model_config['pretrained_checkpoint'])
-    print(f'Checkpoint tokenizer size: {len(checkpoint_tokenizer)}')
-    # Replace the standard tokenizer with your extended one
-    tokenizer = checkpoint_tokenizer
-    print(f'New tokenizer size: {len(tokenizer)}')
-    # STEP C: Resize the model embeddings to match the checkpoint (151673)
-    model.resize_token_embeddings(len(tokenizer))
+    # # STEP B: Load the tokenizer from your checkpoint to get the new vocab size
+    # # This ensures we have the 151673 size including your 4 special tokens
+    # checkpoint_tokenizer = AutoTokenizer.from_pretrained(model_config['pretrained_checkpoint'])
+    # print(f'Checkpoint tokenizer size: {len(checkpoint_tokenizer)}')
+    # # Replace the standard tokenizer with your extended one
+    # tokenizer = checkpoint_tokenizer
+    # print(f'New tokenizer size: {len(tokenizer)}')
+    # # STEP C: Resize the model embeddings to match the checkpoint (151673)
+    # model.resize_token_embeddings(len(tokenizer))
     
     # STEP D: Load the adapters (PeftModel)
     # Since FastLanguageModel wraps the model, we access the internal model to load adapters if needed,

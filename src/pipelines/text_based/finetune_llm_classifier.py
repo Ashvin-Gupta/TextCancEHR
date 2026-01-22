@@ -37,11 +37,12 @@ def load_model_for_mode(config: dict, experiment_mode: str):
     model_config = config['model']
     
     if experiment_mode == EXPERIMENT_NO_PRETRAIN:
-        translator = EHRTokenExtensionStaticTokenizer()
-        model, tokenizer = translator.extend_tokenizer(
+        model, tokenizer = FastLanguageModel.from_pretrained(
             model_name=model_config['unsloth_model'],
-            max_seq_length=data_config['max_length'],
-            load_in_4bit=training_config.get('load_in_4bit', True)
+            max_seq_length=model_config['max_length'],
+            dtype=None,
+            load_in_4bit=training_config.get('load_in_4bit', True),
+            # device_map={"": local_rank}
         )
         print("\nLoaded base model without continued pretraining. Only the classifier head will train.")
         return model, tokenizer
