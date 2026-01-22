@@ -240,8 +240,16 @@ class UnifiedEHRDataset(Dataset):
                             increment = 3 # Skip Code, Value, AND Unit
                     
                     if concept and value_bin: 
-                        # Append Concept + Value + Unit
-                        translated_phrases.append(f"{concept} {value_bin}{unit_str}") 
+                        # Remove the trailing "; " from value_bin when we have a unit
+                        # This prevents "3.5; %" and makes it "3.5 %"
+                        if unit_str:
+                            # Remove "; " from both concept and value_bin, then combine with unit
+                            concept_clean = concept.rstrip('; ').strip()
+                            value_clean = value_bin.rstrip('; ').strip()
+                            translated_phrases.append(f"{concept_clean} {value_clean} {unit_str.lstrip()}; ")
+                        else:
+                            # No unit, keep the original format
+                            translated_phrases.append(f"{concept} {value_bin}") 
                     
                     i += increment
                     # ---------------------------------
@@ -255,6 +263,8 @@ class UnifiedEHRDataset(Dataset):
                     i += 1 
             
             narrative = "".join(translated_phrases)
+            # # Clean up double semicolons (replace "; ;" with "; ")
+            # narrative = narrative.replace('; ;', '; ')
             # narrative = narrative.replace('; <end>', '').replace('; <start>', '').strip()
             
             return {
