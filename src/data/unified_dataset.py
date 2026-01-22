@@ -254,8 +254,8 @@ class UnifiedEHRDataset(Dataset):
                     
                     i += 1 
             
-            narrative = "; ".join(translated_phrases)
-            narrative = narrative.replace('; <end>', '').replace('; <start>', '').strip()
+            narrative = "".join(translated_phrases)
+            # narrative = narrative.replace('; <end>', '').replace('; <start>', '').strip()
             
             return {
                 "text": narrative,
