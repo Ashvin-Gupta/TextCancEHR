@@ -1,11 +1,10 @@
 #!/bin/bash
 #$ -cwd                 
-#$ -pe smp 12
+#$ -pe smp 8
 #$ -l h_rt=1:0:0
-#$ -l h_vmem=7.5G
+#$ -l h_vmem=11G
 #$ -l gpu=1
 #$ -l gpu_type=ampere
-#$ -l cluster=andrena
 #$ -j n
 #$ -o /data/home/qc25022/TextCancEHR/HPC_Pretrain/logo/
 #$ -e /data/home/qc25022/TextCancEHR/HPC_Pretrain/loge/
