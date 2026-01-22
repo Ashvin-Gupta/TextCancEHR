@@ -60,11 +60,20 @@ class InferenceCallback(TrainerCallback):
         print("\n")
 
 # Define the inference prompt
-inference_prompt = '<start> <DEMOGRAPHIC> AGE: 70-74 <DEMOGRAPHIC> GENDER FEMALE <DEMOGRAPHIC> ETHNICITY WHITE <DEMOGRAPHIC> REGION South West <EVENT> Myocardial Infarction <TIME> 4mt-6mt <EVENT> Chronic Kidney Disease <TIME> 4d-7d <unknown> <TIME> 24mt-60mt <EVENT> Hypertension <EVENT> Transient Ischaemic Attack <EVENT> Cholesterolaemia <TIME> 8mt-10mt <EVENT> Death of husband <TIME> 24mt-60mt <EVENT> Liver abscess - excluding amoebic liver abscess <EVENT> Gallbladder Disease <TIME> 2d-4d <EVENT> Hernia Diaphragm <TIME> 2mt-4mt <EVENT> Clouded consciousness <TIME> 2mt-4mt <EVENT> Noninfectious enteritis <TIME> 12d-20d <EVENT> Syncope and collapse <EVENT>'
-
+inference_prompt = 'Given the following EHR medical events, continue generating the narrative in a natural language: AGE; 65; Demographic Gender Male; Demographic Ethnicity Other; Region Region London; Antenatal screening result pending; Ultrasonography of soft tissue mass; 4mt-6mt; QAdmissions emergency admission risk calculator 3.5 %; 8mt-10mt; Seasonal influenza vaccination; 4mt-6mt; Bowel cancer screening programme: faecal occult blood result; Bowel cancer screening programme faecal occult blood test normal; 1d; Faecal occult blood: negative; 8mt-10mt; QAdmissions emergency admission risk calculator 4.2 %; 24mt-60mt;'
 
 def extract_text(base_dataset, tokenizer):
-    """Extracts all valid text narratives and prepares for pretraining."""
+    """
+    Extracts all valid text narratives and prepares for pretraining.
+    
+    This function extracts text from UnifiedEHRDataset and prepares it for SFTTrainer.
+    We keep both <start> and <end> tokens as they mark sequence boundaries:
+    - <start> marks the beginning of a patient record
+    - <end> marks the end of a patient record (the model should learn to predict this)
+    
+    With packing=True in SFTTrainer, these tokens help the model understand
+    where one patient record ends and another begins.
+    """
     text_list = []
     
     print(f"  - Processing {len(base_dataset)} patients...")
@@ -72,9 +81,10 @@ def extract_text(base_dataset, tokenizer):
         item = base_dataset[i]
         if item is not None:
             text = item['text']
-            # Remove dataset format tokens - they're not needed
-            text = text.replace('<start>', '').replace('<end>', '').strip()
-            # Don't add EOS here - the DataCollatorForLanguageModeling handles it
+            # Keep both <start> and <end> tokens - they're important for learning sequence boundaries
+            # Clean up any stray "; " at the beginning (shouldn't happen if <start> is present)
+            if text.startswith('; '):
+                text = text[2:]
             text_list.append(text)
     
     print(f"  - Extracted {len(text_list)} valid narratives.")

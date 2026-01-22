@@ -30,7 +30,7 @@ class UnifiedEHRDataset(Dataset):
         self.data_type = data_type
         # Load the patient records from the .pkl files for the specified split
         # self.patient_records = self._load_data(data_dir, split)
-        if split == 'tuning' or split == 'held_out' or split == 'train':
+        if split == 'tuning' or split == 'held_out':
             self.patient_records = self._load_data(data_dir, split, limit=1)
         else:
             # Chaning to 5 to see result and inference
@@ -116,7 +116,7 @@ class UnifiedEHRDataset(Dataset):
                 return f"Demographic {parts[0].title()} {parts[1].title()}; "
             elif token_string.startswith('REGION//'):
                 parts = token_string.split('//')
-                return f"Region {parts[0].title()} {self.region_lookup.get(parts[1], parts[1]).title()}; "
+                return f"{parts[0].title()} {self.region_lookup.get(parts[1], parts[1]).title()}; "
             elif token_string.startswith('LIFESTYLE//'):
                 code = token_string.split('//')[1].upper()
                 return f"{code.title()}; "

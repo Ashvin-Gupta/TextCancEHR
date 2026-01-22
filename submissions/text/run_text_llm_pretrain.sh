@@ -1,10 +1,11 @@
 #!/bin/bash
 #$ -cwd                 
-#$ -pe smp 8
-#$ -l h_rt=1:0:0
-#$ -l h_vmem=11G
+#$ -pe smp 12
+#$ -l h_rt=240:0:0
+#$ -l h_vmem=7.5G
 #$ -l gpu=1
 #$ -l gpu_type=ampere
+#$ -l cluster=andrena
 #$ -j n
 #$ -o /data/home/qc25022/TextCancEHR/HPC_Pretrain/logo/
 #$ -e /data/home/qc25022/TextCancEHR/HPC_Pretrain/loge/
@@ -27,8 +28,8 @@ cd "${BASE_DIR}"
 echo "Starting experiment from directory: $(pwd)"
 export PYTHONPATH="${BASE_DIR}:${PYTHONPATH}"
 
-python -m src.pipelines.text_based.llm_pretrain2 --config_filepath src/pipelines/text_based/configs/llm_pretrain.yaml 
-# torchrun --nproc_per_node=2 src/pipelines/text_based/llm_pretrain2.py --config_filepath src/pipelines/text_based/configs/llm_pretrain.yaml
+# python -m src.pipelines.text_based.llm_pretrain2 --config_filepath src/pipelines/text_based/configs/llm_pretrain.yaml 
+torchrun --nproc_per_node=2 src/pipelines/text_based/llm_pretrain2.py --config_filepath src/pipelines/text_based/configs/llm_pretrain.yaml
 
 echo "Pipeline finished."
 deactivate
