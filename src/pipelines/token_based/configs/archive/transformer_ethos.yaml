@@ -1,0 +1,30 @@
+name: "transformer_base"
+
+model:
+  type: "transformer"
+  vocab_size: 4597
+  model_dim: 512
+  n_layers: 4
+  dropout: 0.3
+  n_heads: 4
+  context_length: 512
+
+optimiser:
+  type: "adam"
+  lr: 0.0001
+
+loss_function:
+  type: "cross_entropy"
+
+training:
+  epochs: 100
+  device: "cuda"
+  
+data:
+  train_dataset_dir: "/home/joshua/data/nightingale/ehr_tokenisation/original_ethos/train"
+  val_dataset_dir: "/home/joshua/data/nightingale/ehr_tokenisation/original_ethos/tuning"
+  vocab_path: "/home/joshua/data/nightingale/ehr_tokenisation/original_ethos/vocab.csv"
+  sequence_length: 512
+  insert_static_demographic_tokens: true
+  batch_size: 16
+  shuffle: true

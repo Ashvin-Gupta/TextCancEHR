@@ -81,6 +81,9 @@ class ClassificationCollator:
                                 f"This warning will only show once."
                             )
                             self._warned_once = True
+                        # Don't decode/re-encode - just add to list and handle during tokenization
+                        filtered_texts.append(text)
+                        filtered_labels.append(label)
                         # Truncate from the start to keep the end (most recent medical events)
                         tokens = self.tokenizer.encode(text, add_special_tokens=False)
                         # Keep the last (max_length - 2) tokens, leaving room for special tokens

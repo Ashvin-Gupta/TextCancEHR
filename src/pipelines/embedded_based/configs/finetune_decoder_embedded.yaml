@@ -1,0 +1,46 @@
+# Configuration for fine-tuning a transformer decoder on pre-embedded EHR data
+# Task: Classification using a pretrained autoregressive model
+
+name: "finetune_decoder_embedded"
+
+model:
+  type: "transformer_decoder_embedded"
+  embedding_dim: 768         # E5 embedding dimension
+  model_dim: 512             # Internal transformer dimension
+  n_layers: 6                # Number of transformer layers
+  n_heads: 8                 # Number of attention heads
+  dropout: 0.1               # Dropout rate
+  context_length: 2048       # Maximum sequence length
+  vocab_size: 10000          # Vocabulary size (must match pretraining)
+  num_classes: 2             # Binary classification
+  add_classification_head: true  # Add classification head on top of decoder
+
+training:
+  task: "classification"     # Task type for fine-tuning
+  batch_size: 16             # Training batch size
+  eval_batch_size: 32        # Evaluation batch size
+  epochs: 30                 # Number of training epochs
+  learning_rate: 5e-5        # Initial learning rate (lower for fine-tuning)
+  weight_decay: 0.01         # Weight decay for regularization
+  num_workers: 4             # Number of dataloader workers
+  scheduler_patience: 3      # Patience for ReduceLROnPlateau
+  early_stopping_patience: 10  # Early stopping patience
+  output_dir: "./outputs/finetune_decoder_embedded"
+  
+  # Load pretrained checkpoint from autoregressive pretraining
+  pretrained_checkpoint: "./outputs/pretrain_decoder_embedded/best_checkpoint.pt"
+  
+  # Optional: Class weights for imbalanced datasets
+  class_weights: null  # e.g., [1.0, 3.0] to weight positive class 3x
+
+data:
+  embedding_output_dir: "/path/to/embedded/data"  # UPDATE THIS PATH
+  cutoff_months: 12          # Temporal cutoff used in embedding creation
+
+# Notes:
+# - This config fine-tunes a pretrained decoder for classification
+# - The decoder maintains causal attention from pretraining
+# - A classification head is added on top of the decoder representations
+# - Recommended to load pretrained checkpoint for better initialization
+# - The model can leverage patterns learned during autoregressive pretraining
+

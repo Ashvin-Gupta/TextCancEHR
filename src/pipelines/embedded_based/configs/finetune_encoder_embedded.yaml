@@ -1,0 +1,47 @@
+# Configuration for fine-tuning a transformer encoder on pre-embedded EHR data
+# Task: Binary classification (cancer prediction)
+
+name: "finetune_encoder_embedded"
+
+model:
+  type: "transformer_encoder_embedded"
+  embedding_dim: 768         # E5 embedding dimension
+  model_dim: 512             # Internal transformer dimension
+  n_layers: 6                # Number of transformer layers
+  n_heads: 8                 # Number of attention heads
+  dropout: 0.1               # Dropout rate
+  context_length: 2048       # Maximum sequence length
+  num_classes: 2             # Binary classification (0 = no cancer, 1 = cancer)
+  pooling: "mean"            # Pooling strategy: 'mean', 'cls', or 'max'
+
+training:
+  task: "classification"     # Task type
+  batch_size: 16             # Training batch size
+  eval_batch_size: 32        # Evaluation batch size
+  epochs: 30                 # Number of training epochs
+  learning_rate: 5e-5        # Initial learning rate (lower for fine-tuning)
+  weight_decay: 0.01         # Weight decay for regularization
+  num_workers: 4             # Number of dataloader workers
+  scheduler_patience: 3      # Patience for ReduceLROnPlateau
+  early_stopping_patience: 10  # Early stopping patience
+  output_dir: "./outputs/finetune_encoder_embedded"
+  
+  # Optional: Load pretrained checkpoint
+  pretrained_checkpoint: null  # Path to pretrained model or null
+  
+  # Optional: Class weights for imbalanced datasets
+  class_weights: null  # e.g., [1.0, 3.0] to weight positive class 3x
+
+data:
+  embedding_output_dir: "/path/to/embedded/data"  # UPDATE THIS PATH
+  cutoff_months: 12          # Remove last N months before diagnosis (for fair evaluation)
+  # Note: cutoff_months should be applied when creating embeddings, not here
+  # This is a reminder of what temporal cutoff was used
+
+# Notes:
+# - This config is for supervised fine-tuning on classification
+# - The model uses bidirectional attention (encoder architecture)
+# - Can optionally load pretrained weights from pretraining phase
+# - Supports class weighting for imbalanced datasets
+# - Early stopping based on validation F1 score
+

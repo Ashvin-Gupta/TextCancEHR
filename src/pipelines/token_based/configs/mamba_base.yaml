@@ -1,0 +1,63 @@
+name: "mamba_base"
+
+model:
+  type: "mamba"
+  vocab_size: 6000
+  model_dim: 768
+  n_layers: 6
+  dropout: 0.3
+  context_length: 4096
+
+wandb:
+  enabled: true
+  project: "cpt-mamba-20-11-25"
+
+  # Mamba-specific parameters
+  # SSM architecture parameters
+  d_state: 16          # SSM state expansion factor (standard: 16)
+  d_conv: 4            # Local convolution width (standard: 4)
+  expand: 2            # Block expansion factor (standard: 2)
+
+  # Delta (Δ) discretization parameters
+  dt_rank: "auto"      # Rank of Δ projection ("auto" = ceil(d_model/16), or specify int)
+  dt_min: 0.001        # Minimum delta value for SSM discretization
+  dt_max: 0.1          # Maximum delta value for SSM discretization
+  dt_init: "random"    # Delta initialization method ("random" or "constant")
+  dt_scale: 1.0        # Delta initialization scale factor
+  dt_init_floor: 1e-4  # Floor value for delta initialization
+
+  # Linear layer parameters
+  bias: false          # Use bias in linear projections
+  conv_bias: true      # Use bias in convolution layer
+
+  # Performance optimization
+  use_fast_path: true  # Use CUDA-optimized kernels when available (requires mamba-ssm and causal-conv1d)
+
+optimiser:
+  type: "adamw"
+  lr: 0.0006
+  scheduler:
+    type: "warmup_cosine"
+    warmup_steps: 10000
+    lr_min_ratio: 0.06
+
+loss_function:
+  type: "cross_entropy"
+
+training:
+  epochs: 100
+  device: "cuda"
+  use_distributed: true
+  multi_gpu: "ddp"
+  use_amp: true
+  gradient_accumulation_steps: 1
+  max_grad_norm: 1.0
+
+data:
+  train_dataset_dir: "/data/scratch/qc25022/pancreas/tokenised_data_word_level/cprd_upgi/train"
+  val_dataset_dir: "/data/scratch/qc25022/pancreas/tokenised_data_word_level/cprd_upgi/tuning"
+  vocab_path: "/data/scratch/qc25022/pancreas/tokenised_data_word_level/cprd_upgi/vocab.csv"
+  insert_static_demographic_tokens: false
+  sequence_length: 4096
+  batch_size: 16
+  shuffle: true

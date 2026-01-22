@@ -1,0 +1,30 @@
+name: "gpt2_regular"
+
+model:
+  type: "gpt2"
+  vocab_size: 5500
+  model_dim: 768
+  n_layers: 12
+  dropout: 0.15
+  n_heads: 12
+  context_length: 1024
+  bias: true
+
+optimiser:
+  type: "adam"
+  lr: 0.00015
+
+loss_function:
+  type: "cross_entropy"
+
+training:
+  epochs: 50
+  device: "cpu"
+
+data:
+  train_dataset_dir: "/home/joshua/data/nightingale/ehr_tokenisation/new_ethos1/train"
+  val_dataset_dir: "/home/joshua/data/nightingale/ehr_tokenisation/new_ethos1/tuning"
+  vocab_path: "/home/joshua/data/nightingale/ehr_tokenisation/new_ethos1/vocab.csv"
+  sequence_length: 1024
+  batch_size: 2
+  shuffle: true

@@ -1,0 +1,41 @@
+# Configuration for pretraining a transformer decoder on pre-embedded EHR data
+# Task: Autoregressive next-event prediction (unsupervised)
+
+name: "pretrain_decoder_embedded"
+
+model:
+  type: "transformer_decoder_embedded"
+  embedding_dim: 1024         # E5 embedding dimension
+  model_dim: 512             # Internal transformer dimension
+  n_layers: 6                # Number of transformer layers
+  n_heads: 8                 # Number of attention heads
+  dropout: 0.1               # Dropout rate
+  context_length: 2048       # Maximum sequence length
+  vocab_size: 5000          # Output vocabulary size (update based on your vocab)
+
+training:
+  task: "autoregressive"     # Task type for pretraining
+  batch_size: 16             # Training batch size
+  eval_batch_size: 32        # Evaluation batch size
+  epochs: 50                 # Number of training epochs
+  learning_rate: 1e-4        # Initial learning rate
+  min_learning_rate: 1e-6    # Minimum learning rate for scheduler
+  weight_decay: 0.01         # Weight decay for regularization
+  num_workers: 4             # Number of dataloader workers
+  save_every: 10             # Save checkpoint every N epochs
+  output_dir: "/data/scratch/qc25022/upgi/experiments/pretrain_decoder_embedded"
+
+data:
+  embedding_output_dir: "/data/scratch/qc25022/upgi/experiments/embed_text" 
+
+wandb:
+  project: "pretrain_decoder_embedded"
+  enabled: true
+
+
+# Notes:
+# - This config is for unsupervised pretraining using next-event prediction
+# - The model learns to predict the next token ID given previous embeddings
+# - No labels are used during pretraining (pure autoregressive modeling)
+# - After pretraining, use the checkpoint for fine-tuning with finetune_decoder_embedded.yaml
+

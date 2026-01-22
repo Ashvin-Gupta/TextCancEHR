@@ -1,0 +1,53 @@
+name: "llm_classify_no_pretrain"
+
+experiment:
+  mode: "no_pretrain"  # Loads base model + tokenizer extension, no continued pretraining
+  notes: >
+    Use this template when you want to skip continued pretraining and train only the
+    classifier head on the base LLM (LLM weights remain frozen).
+
+model:
+  unsloth_model: "unsloth/Qwen3-8B-Base-unsloth-bnb-4bit"
+  pretrained_checkpoint: null
+  hidden_size: 4096
+  num_labels: 2  # Set >2 when moving to multi-class/multi-label
+  freeze_llm: true
+  train_lora: false  # No adapters to train in this mode
+
+wandb:
+  enabled: true
+  project: "Pretrain-Qwen3-8B-Pancreas-classification-logisitc"
+  run_name: "no-pretrain-12-month-logistic-8192"  # Optional explicit run name
+
+training:
+  output_dir: "/data/scratch/qc25022/pancreas/experiments/no-pretrain-12-month-logistic-8192"
+  overwrite_output_dir: true
+  epochs: 20
+  batch_size: 4
+  eval_batch_size: 4
+  learning_rate: 1e-5
+  weight_decay: 0.01
+  warmup_steps: 100
+  gradient_accumulation_steps: 2
+  fp16: false
+  bf16: true
+  logging_steps: 50
+  eval_steps: 250
+  save_steps: 500
+  save_total_limit: 2
+  load_in_4bit: true
+  multi_label: false  # Set true once datasets + trainer support multi-label outputs
+  early_stopping_patience: 5
+  early_stopping_threshold: 0.001
+
+data:
+  cutoff_months: 12
+  data_dir: "/data/scratch/qc25022/pancreas/tokenised_data_word_level/cprd_upgi/"
+  vocab_filepath: "/data/scratch/qc25022/pancreas/tokenised_data_word_level/cprd_upgi/vocab.csv"
+  labels_filepath: "/data/scratch/qc25022/upgi/master_subject_labels.csv"
+  medical_lookup_filepath: "/data/home/qc25022/CancEHR-Training/src/resources/MedicalDictTranslation2.csv"
+  lab_lookup_filepath: "/data/home/qc25022/CancEHR-Training/src/resources/LabLookUP.csv"
+  region_lookup_filepath: "/data/home/qc25022/CancEHR-Training/src/resources/RegionLookUp.csv"
+  time_lookup_filepath: "/data/home/qc25022/CancEHR-Training/src/resources/TimeLookUp.csv"
+  max_length: 8192
+

@@ -1,0 +1,21 @@
+name: "embed_text"
+
+model:
+  # Model to pretrain (examples: gpt2, meta-llama/Llama-2-7b-hf, mistralai/Mistral-7B-v0.1, unsloth/llama-3-8b-bnb-4bit)
+  model_name: "intfloat/e5-large-v2"
+  device: "cpu"
+
+training:
+  output_dir: "/data/scratch/qc25022/upgi/experiments/embed_text"
+  overwrite_output_dir: true
+  
+data:
+  format: "events"
+  cutoff_months: 6
+  vocab_embedding_path: "/data/scratch/qc25022/upgi/experiments/embed_text/vocab_embeddings.pt"
+  embedding_output_dir: "/data/scratch/qc25022/upgi/experiments/embed_text"
+  data_dir: "/data/scratch/qc25022/upgi/tokenised_data_debug/cprd_test/"
+  vocab_filepath: "/data/scratch/qc25022/upgi/tokenised_data_debug/cprd_test/vocab.csv"
+  labels_filepath: "/data/scratch/qc25022/upgi/master_subject_labels.csv"
+  medical_lookup_filepath: "/data/home/qc25022/cancer-extraction-pipeline/src/resources/MedicalDictTranslation.csv"
+  lab_lookup_filepath: "/data/home/qc25022/cancer-extraction-pipeline/src/resources/LabLookUP.csv"

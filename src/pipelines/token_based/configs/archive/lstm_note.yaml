@@ -1,0 +1,32 @@
+name: "lstm_with_notes"
+
+model:
+  type: "lstm_note"
+  vocab_size: 4000
+  embedding_dim: 768
+  hidden_dim: 768
+  n_layers: 5
+  dropout: 0.3
+
+optimiser:
+  type: "adam"
+  lr: 0.0001
+
+loss_function:
+  type: "cross_entropy"
+
+training:
+  epochs: 100
+  device: "cuda"
+
+data:
+  train_dataset_dir: "/home/joshua/data/mimic/mimic_iv/meds/mimic_iv_meds/tokenized_data/ethos_timetokens/train"
+  val_dataset_dir: "/home/joshua/data/mimic/mimic_iv/meds/mimic_iv_meds/tokenized_data/ethos_timetokens/tuning"
+  vocab_path: "/home/joshua/data/mimic/mimic_iv/meds/mimic_iv_meds/tokenized_data/ethos_timetokens/vocab.csv"
+  clinical_notes:
+    dir: "/home/joshua/data/mimic/mimic_iv/tokenized_notes"
+    max_note_count: 3
+    max_tokens_per_note: 256
+  sequence_length: 512
+  batch_size: 64
+  shuffle: true

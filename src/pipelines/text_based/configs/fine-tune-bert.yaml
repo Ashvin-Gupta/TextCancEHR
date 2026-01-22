@@ -1,0 +1,33 @@
+# src/experiments/configs/finetune_bert.yaml
+name: "cprd_finetune_bert_experiment"
+
+model:
+  # This section will be used by your new training script
+  type: "huggingface_encoder"
+  model_name: "emilyalsentzer/Bio_ClinicalBERT"
+  num_classes: 5
+  max_length: 512
+
+wandb:
+  project: "cancehr-finetuning"
+  # run_name: "clinicalbert-lr-2e-5"
+
+training:
+  epochs: 100
+  device: "cuda"
+  overwrite_output_dir: True
+  output_dir: "/data/scratch/qc25022/upgi/experiments/finetune_bert_experiment"
+  learning_rate: 2e-5
+  batch_size: 16
+  weight_decay: 0.01
+
+data:
+  format: "text" # <-- Tells the dataloader to give you natural language text
+  batch_size: 16 # Use a smaller batch size for large transformer models
+  cutoff_months: 6
+  data_dir: "/data/scratch/qc25022/upgi/tokenised_data/cprd_upgi/"
+  vocab_filepath: "/data/scratch/qc25022/upgi/tokenised_data/cprd_upgi/vocab.csv"
+  labels_filepath: "/data/scratch/qc25022/upgi/master_subject_labels.csv"
+  medical_lookup_filepath: "/data/home/qc25022/cancer-extraction-pipeline/src/resources/MedicalDictTranslation.csv"
+  lab_lookup_filepath: "/data/home/qc25022/cancer-extraction-pipeline/src/resources/LabLookUP.csv"
+

@@ -1,0 +1,28 @@
+name: "template"
+
+model:
+  type: "lstm"
+  vocab_size: 1000
+  embedding_dim: 100
+  hidden_dim: 100
+  n_layers: 2
+  dropout: 0.5
+
+optimiser:
+  type: "adam"
+  lr: 0.001
+
+loss_function:
+  type: "cross_entropy"
+
+training:
+  epochs: 10
+  device: "cuda"
+
+data:
+  train_dataset_dir: "/home/joshua/data/mimic_meds/mimic_iv_meds/tokenized_data/Template Tokenization Pipeline/train"
+  val_dataset_dir: "/home/joshua/data/mimic_meds/mimic_iv_meds/tokenized_data/Template Tokenization Pipeline/tuning"
+  vocab_path: "/home/joshua/data/mimic_meds/mimic_iv_meds/tokenized_data/Template Tokenization Pipeline/vocab.csv"
+  sequence_length: 100
+  batch_size: 10
+  shuffle: true

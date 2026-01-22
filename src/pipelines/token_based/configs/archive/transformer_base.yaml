@@ -1,0 +1,29 @@
+name: "transformer_base"
+
+model:
+  type: "transformer"
+  vocab_size: 4000
+  model_dim: 512
+  n_layers: 4
+  dropout: 0.3
+  n_heads: 4
+  context_length: 512
+
+optimiser:
+  type: "adam"
+  lr: 0.0001
+
+loss_function:
+  type: "cross_entropy"
+
+training:
+  epochs: 100
+  device: "cuda"
+
+data:
+  train_dataset_dir: "/home/joshua/data/mimic_meds/mimic_iv_meds/tokenized_data/ethos_timetokens/train"
+  val_dataset_dir: "/home/joshua/data/mimic_meds/mimic_iv_meds/tokenized_data/ethos_timetokens/tuning"
+  vocab_path: "/home/joshua/data/mimic_meds/mimic_iv_meds/tokenized_data/ethos_timetokens/vocab.csv"
+  sequence_length: 512
+  batch_size: 16
+  shuffle: true

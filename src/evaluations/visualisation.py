@@ -3,10 +3,8 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.metrics import precision_recall_curve, roc_curve, auc
+from sklearn.metrics import precision_recall_curve, roc_curve, auc, brier_score_loss
 from sklearn.calibration import calibration_curve
-from sklearn.metrics import brier_score_loss
-from sklearn.metrics import brier_score_loss
 
 def plot_classification_performance(labels, probs, output_dir):
     """

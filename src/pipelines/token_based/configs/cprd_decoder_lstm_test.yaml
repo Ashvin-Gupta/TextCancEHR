@@ -1,0 +1,32 @@
+name: "cprd_lstm_test"
+
+model:
+  type: "lstm"
+  vocab_size: 4000
+  embedding_dim: 128
+  hidden_dim: 1024
+  n_layers: 5
+  dropout: 0.3
+
+optimiser:
+  type: "adam"
+  lr: 0.0001
+
+loss_function:
+  type: "cross_entropy"
+
+training:
+  epochs: 100
+  device: "cpu"
+
+data:
+
+  train_dataset_dir: "/data/scratch/qc25022/upgi/tokenised_data_debug/cprd_test/train"
+  val_dataset_dir: "/data/scratch/qc25022/upgi/tokenised_data_debug/cprd_test/tuning"
+  vocab_path: "/data/scratch/qc25022/upgi/tokenised_data_debug/cprd_test/vocab.csv"
+
+
+  sequence_length: 512
+  batch_size: 64
+  insert_static_demographic_tokens: false
+  shuffle: true

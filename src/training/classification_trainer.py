@@ -69,7 +69,7 @@ class LLMClassifier(nn.Module):
                 if any(keyword in name for keyword in self.trainable_param_keywords):
                     param.requires_grad = True
                     reenabled += 1
-           
+            print(f"  - Re-enabled {reenabled} parameters matching: {self.trainable_param_keywords}")
         
         # Classification head: hidden_size -> num_labels
         self.classifier = nn.Linear(hidden_size, num_labels)
@@ -155,74 +155,74 @@ class LLMClassifier(nn.Module):
                 is_case = label_val > 0
                 case_type = 'case' if is_case else 'control'
                 
-            #     if self.tokenizer is not None:
-            #         token_text = self.tokenizer.decode([token_at_position])
-            #         eos_id = self.tokenizer.eos_token_id
-            #         pad_id = self.tokenizer.pad_token_id
-            #         is_eos = (token_at_position == eos_id)
-            #         is_pad = (token_at_position == pad_id)
+                if self.tokenizer is not None:
+                    token_text = self.tokenizer.decode([token_at_position])
+                    eos_id = self.tokenizer.eos_token_id
+                    pad_id = self.tokenizer.pad_token_id
+                    is_eos = (token_at_position == eos_id)
+                    is_pad = (token_at_position == pad_id)
                     
-            #         # Update statistics
-            #         if is_eos:
-            #             self._eos_stats[case_type]['correct'] += 1
-            #         elif is_pad:
-            #             self._eos_stats[case_type]['pad'] += 1
-            #         else:
-            #             self._eos_stats[case_type]['other'] += 1
+                    # Update statistics
+                    if is_eos:
+                        self._eos_stats[case_type]['correct'] += 1
+                    elif is_pad:
+                        self._eos_stats[case_type]['pad'] += 1
+                    else:
+                        self._eos_stats[case_type]['other'] += 1
                     
-            #         # Print detailed info for first 10 batches
-            #         if self._debug_count <= 10:
-            #             print(f"\n{'='*60}")
-            #             print(f"  Patient {i} Debug (Batch #{self._debug_count}) - {case_type.upper()}")
-            #             print(f"{'='*60}")
-            #             print(f"    - Label: {label_val} ({'Case' if is_case else 'Control'})")
-            #             print(f"    - Sequence length (from attention_mask): {seq_len}")
-            #             print(f"    - Token at position {seq_len}: ID={token_at_position}, text='{token_text}'")
-            #             print(f"    - Is EOS? {is_eos} (EOS ID={eos_id})")
-            #             print(f"    - Is PAD? {is_pad} (PAD ID={pad_id})")
-            #             print(f"    - Attention mask sum: {attention_mask[i].sum().item()}")
-            #             print(f"    - Input IDs shape: {input_ids[i].shape}")
-            #             print(f"    - Attention mask at position {seq_len}: {attention_mask[i, seq_len].item()}")
+                    # Print detailed info for first 10 batches
+                    if self._debug_count <= 10:
+                        print(f"\n{'='*60}")
+                        print(f"  Patient {i} Debug (Batch #{self._debug_count}) - {case_type.upper()}")
+                        print(f"{'='*60}")
+                        print(f"    - Label: {label_val} ({'Case' if is_case else 'Control'})")
+                        print(f"    - Sequence length (from attention_mask): {seq_len}")
+                        print(f"    - Token at position {seq_len}: ID={token_at_position}, text='{token_text}'")
+                        print(f"    - Is EOS? {is_eos} (EOS ID={eos_id})")
+                        print(f"    - Is PAD? {is_pad} (PAD ID={pad_id})")
+                        print(f"    - Attention mask sum: {attention_mask[i].sum().item()}")
+                        print(f"    - Input IDs shape: {input_ids[i].shape}")
+                        print(f"    - Attention mask at position {seq_len}: {attention_mask[i, seq_len].item()}")
                         
-            #             # Find where EOS actually is
-            #             eos_positions = (input_ids[i] == eos_id).nonzero(as_tuple=True)[0]
-            #             if len(eos_positions) > 0:
-            #                 print(f"    - EOS token found at positions: {eos_positions.tolist()}")
-            #                 for eos_pos in eos_positions:
-            #                     eos_pos_val = eos_pos.item()
-            #                     eos_mask = attention_mask[i, eos_pos_val].item()
-            #                     print(f"        pos {eos_pos_val}: mask={eos_mask}")
-            #             else:
-            #                 print(f"    - ⚠️  WARNING: No EOS token found in sequence!")
+                        # Find where EOS actually is
+                        eos_positions = (input_ids[i] == eos_id).nonzero(as_tuple=True)[0]
+                        if len(eos_positions) > 0:
+                            print(f"    - EOS token found at positions: {eos_positions.tolist()}")
+                            for eos_pos in eos_positions:
+                                eos_pos_val = eos_pos.item()
+                                eos_mask = attention_mask[i, eos_pos_val].item()
+                                print(f"        pos {eos_pos_val}: mask={eos_mask}")
+                        else:
+                            print(f"    - ⚠️  WARNING: No EOS token found in sequence!")
                         
-            #             # Show last 5 tokens
-            #             last_5_positions = max(0, seq_len - 4)
-            #             print(f"    - Last 5 tokens:")
-            #             for pos in range(last_5_positions, min(seq_len + 2, input_ids.shape[1])):
-            #                 tid = input_ids[i, pos].item()
-            #                 ttext = self.tokenizer.decode([tid])
-            #                 mask_val = attention_mask[i, pos].item()
-            #                 is_this_eos = (tid == eos_id)
-            #                 marker = " <-- EOS!" if is_this_eos else ""
-            #                 print(f"        pos {pos}: ID={tid}, text='{ttext}', mask={mask_val}{marker}")
-            #             print(f"{'='*60}\n")
+                        # Show last 5 tokens
+                        last_5_positions = max(0, seq_len - 4)
+                        print(f"    - Last 5 tokens:")
+                        for pos in range(last_5_positions, min(seq_len + 2, input_ids.shape[1])):
+                            tid = input_ids[i, pos].item()
+                            ttext = self.tokenizer.decode([tid])
+                            mask_val = attention_mask[i, pos].item()
+                            is_this_eos = (tid == eos_id)
+                            marker = " <-- EOS!" if is_this_eos else ""
+                            print(f"        pos {pos}: ID={tid}, text='{ttext}', mask={mask_val}{marker}")
+                        print(f"{'='*60}\n")
             
-            # # Print statistics every 50 batches or at batch 10
-            # if self._debug_count % 50 == 0 or self._debug_count == 10:
-            #     print(f"\n{'#'*70}")
-            #     print(f"  EOS TOKEN EXTRACTION STATISTICS (After {self._debug_count} batches)")
-            #     print(f"{'#'*70}")
+            # Print statistics every 50 batches or at batch 10
+            if self._debug_count % 50 == 0 or self._debug_count == 10:
+                print(f"\n{'#'*70}")
+                print(f"  EOS TOKEN EXTRACTION STATISTICS (After {self._debug_count} batches)")
+                print(f"{'#'*70}")
                 
-            #     for case_type in ['case', 'control']:
-            #         stats = self._eos_stats[case_type]
-            #         total = sum(stats.values())
-            #         if total > 0:
-            #             print(f"\n  {case_type.upper()}S:")
-            #             print(f"    - Correct (EOS):  {stats['correct']:4d} ({stats['correct']/total*100:5.1f}%)")
-            #             print(f"    - Padding (PAD):  {stats['pad']:4d} ({stats['pad']/total*100:5.1f}%)")
-            #             print(f"    - Other:          {stats['other']:4d} ({stats['other']/total*100:5.1f}%)")
-            #             print(f"    - Total:          {total:4d}")
-            #     print(f"{'#'*70}\n")
+                for case_type in ['case', 'control']:
+                    stats = self._eos_stats[case_type]
+                    total = sum(stats.values())
+                    if total > 0:
+                        print(f"\n  {case_type.upper()}S:")
+                        print(f"    - Correct (EOS):  {stats['correct']:4d} ({stats['correct']/total*100:5.1f}%)")
+                        print(f"    - Padding (PAD):  {stats['pad']:4d} ({stats['pad']/total*100:5.1f}%)")
+                        print(f"    - Other:          {stats['other']:4d} ({stats['other']/total*100:5.1f}%)")
+                        print(f"    - Total:          {total:4d}")
+                print(f"{'#'*70}\n")
         
         # Pass through classification head
         # Shape: (batch_size, num_labels)
@@ -244,6 +244,23 @@ class LLMClassifier(nn.Module):
             # 'hidden_states': last_hidden_states
         }
     
+    def print_trainable_parameters(self):
+        """Print the number of trainable vs total parameters."""
+        trainable_params = 0
+        all_params = 0
+        print("\nTrainable parameter groups:")
+        for name, param in self.named_parameters():
+            all_params += param.numel()
+            if param.requires_grad:
+                print(f"  - {name}: {param.numel():,} params")
+                trainable_params += param.numel()
+        
+        print(f"\n{'='*80}")
+        print("Model Parameters:")
+        print(f"  - Trainable params: {trainable_params:,}")
+        print(f"  - Total params: {all_params:,}")
+        print(f"  - Trainable %: {100 * trainable_params / all_params:.2f}%")
+        print(f"{'='*80}\n")
 
 
 def compute_metrics(eval_pred):
@@ -320,7 +337,9 @@ def run_classification_training(
     
     if multi_label_task:
         print("Multi-label training mode is flagged, but metrics/plots currently assume binary classification.")
-
+    
+    # Print trainable parameters
+    model.print_trainable_parameters()
     
     # Set up training arguments
     training_args = TrainingArguments(
@@ -350,7 +369,7 @@ def run_classification_training(
         
         # Logging and evaluation
         logging_steps=int(training_config.get('logging_steps', 10)),
-        evaluation_strategy="steps",
+        eval_strategy="steps",
         eval_steps=int(training_config.get('eval_steps', 100)),
         save_strategy="steps",
         save_steps=int(training_config.get('save_steps', 500)),

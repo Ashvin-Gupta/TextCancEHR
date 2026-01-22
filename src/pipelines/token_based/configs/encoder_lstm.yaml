@@ -1,0 +1,31 @@
+# src/experiments/configs/custom_lstm.yaml
+name: "cprd_custom_lstm_experiment"
+
+model:
+  type: "lstm"
+  vocab_size: 5000 # Make sure this matches your tokenizer's vocab size
+  embedding_dim: 128
+  hidden_dim: 1024
+  n_layers: 5
+  dropout: 0.3
+  num_classes: 5 # Num cancers + 1 for Control
+
+# ... (optimiser, loss_function sections) ...
+
+training:
+  epochs: 100
+  device: "cpu" # Use "cuda" if you have a GPU
+
+data:
+  format: "tokens" # <-- Tells the dataloader to give you integer tokens
+  batch_size: 64
+  num_workers: 4
+  cutoff_months: 6 # Example: 6-month cutoff before diagnosis
+  max_sequence_length: 512 # <-- Truncates long sequences for your custom model
+  
+  # --- All the paths for your unified dataset ---
+  data_dir: "/data/scratch/qc25022/upgi/tokenised_data_debug/cprd_test/"
+  vocab_filepath: "/data/scratch/qc25022/upgi/tokenised_data_debug/cprd_test/vocab.csv"
+  labels_filepath: "/data/scratch/qc25022/upgi/master_subject_labels.csv"
+  medical_lookup_filepath: "/data/home/qc25022/cancer-extraction-pipeline/src/resources/MedicalDictTranslation.csv"
+  lab_lookup_filepath: "/data/home/qc25022/cancer-extraction-pipeline/src/resources/LabLookUP.csv"

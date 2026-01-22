@@ -1,0 +1,68 @@
+# src/pipelines/text_based/configs/llm_finetune_classifier.yaml
+
+name: "llm_classification_finetuning"
+
+model:
+  # Path to the pretrained checkpoint from continued pretraining
+  # This should contain the LoRA adapters and extended tokenizer
+  unsloth_model: "unsloth/Qwen3-8B-Base-unsloth-bnb-4bit"
+  pretrained_checkpoint: "/data/scratch/qc25022/pancreas/experiments/Pretrain-Qwen3-8B-Pancreas/checkpoint-4915"
+  finetune_checkpoint: "/data/scratch/qc25022/pancreas/experiments/lora-6-month-logistic/checkpoint-2000"
+  
+  # Model architecture settings
+  hidden_size: 4096  # Qwen3-8B hidden dimension (check your model config if different)
+  num_labels: 2  # Binary classification: 0 = Control, 1 = Cancer
+  
+  # # Freezing strategy
+  # freeze_llm: true  # Freeze base LLM parameters
+  # freeze_lora: true  # Freeze LoRA adapters (set to false for joint training)
+
+# wandb:
+#   enabled: true
+#   project: "Pretrain-Qwen3-8B-Pancreas-classification-logisitc"
+#   run_name: "lora-6-month-logistic-eval-test"
+  # run_name: null  # Will be auto-generated
+
+training:
+  output_dir: "/data/scratch/qc25022/pancreas/experiments/lora-6-month-logistic"
+  overwrite_output_dir: true
+  
+  # # Training hyperparameters
+  # epochs: 20
+  # batch_size: 8
+  # eval_batch_size: 12
+  # learning_rate: 1e-5
+  # weight_decay: 0.01
+  # warmup_steps: 100
+  
+  # # Gradient settings
+  # gradient_accumulation_steps: 2  # Effective batch size = 16
+  
+  # Precision
+  fp16: false
+  bf16: true  # Use BF16 for Ampere GPUs
+  
+  # Logging and saving
+  # logging_steps: 50
+  # eval_steps: 250
+  # save_steps: 500
+  # save_total_limit: 2  # Keep only 2 best checkpoints
+  
+  # 4-bit loading (should match pretraining config)
+  load_in_4bit: true
+
+data:
+  # Data paths (should match your pretraining config)
+  cutoff_months: 6  # Remove last 6 month before diagnosis for cancer patients
+  data_dir: "/data/scratch/qc25022/pancreas/tokenised_data_word_level/cprd_upgi/"
+  vocab_filepath: "/data/scratch/qc25022/pancreas/tokenised_data_word_level/cprd_upgi/vocab.csv"
+  labels_filepath: "/data/scratch/qc25022/upgi/master_subject_labels.csv"
+  medical_lookup_filepath: "/data/home/qc25022/CancEHR-Training/src/resources/MedicalDictTranslation2.csv"
+  lab_lookup_filepath: "/data/home/qc25022/CancEHR-Training/src/resources/LabLookUP.csv"
+  region_lookup_filepath: "/data/home/qc25022/CancEHR-Training/src/resources/RegionLookUp.csv"
+  time_lookup_filepath: "/data/home/qc25022/CancEHR-Training/src/resources/TimeLookUp.csv"
+  
+  # Sequence length (should match pretraining)
+  max_length: 2048
+
+

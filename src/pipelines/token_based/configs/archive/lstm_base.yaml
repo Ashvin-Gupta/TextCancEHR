@@ -1,0 +1,28 @@
+name: "lstm_base"
+
+model:
+  type: "lstm"
+  vocab_size: 4000
+  embedding_dim: 128
+  hidden_dim: 1024
+  n_layers: 5
+  dropout: 0.3
+
+optimiser:
+  type: "adam"
+  lr: 0.0001
+
+loss_function:
+  type: "cross_entropy"
+
+training:
+  epochs: 100
+  device: "cuda"
+
+data:
+  train_dataset_dir: "/home/joshua/data/mimic/mimic_iv/meds/mimic_iv_meds/tokenized_data/ethos_timetokens/train"
+  val_dataset_dir: "/home/joshua/data/mimic/mimic_iv/meds/mimic_iv_meds/tokenized_data/ethos_timetokens/tuning"
+  vocab_path: "/home/joshua/data/mimic/mimic_iv/meds/mimic_iv_meds/tokenized_data/ethos_timetokens/vocab.csv"
+  sequence_length: 512
+  batch_size: 64
+  shuffle: true

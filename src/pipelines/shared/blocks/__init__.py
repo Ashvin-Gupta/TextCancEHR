@@ -1,0 +1,2 @@
+"""Shared model building blocks."""
+
