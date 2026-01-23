@@ -129,31 +129,34 @@ def load_LoRA_model(config: dict):
     print(f"Loading pretrained model from: {model_config['pretrained_checkpoint']}")
     print("=" * 80)
 
-    # STEP A: Explicitly load the correct Base Model (Qwen 2.5)
-    # We force the model_name to be the base model, NOT the checkpoint path yet.
+    # STEP A: Explicitly load the correct Base Model
+    # IMPORTANT: This MUST match the base model used during pretraining!
     base_model_name = model_config['unsloth_model']
     
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name=base_model_name, 
-        max_seq_length=data_config['max_length'], # Needs to be higher than the max length in the data
+        max_seq_length=data_config['max_length'],
         dtype=None,
         load_in_4bit=training_config.get('load_in_4bit', True),
     )
     print(f'Original tokenizer size: {len(tokenizer)}')
 
-    # # STEP B: Load the tokenizer from your checkpoint to get the new vocab size
-    # # This ensures we have the 151673 size including your 4 special tokens
-    # checkpoint_tokenizer = AutoTokenizer.from_pretrained(model_config['pretrained_checkpoint'])
-    # print(f'Checkpoint tokenizer size: {len(checkpoint_tokenizer)}')
-    # # Replace the standard tokenizer with your extended one
-    # tokenizer = checkpoint_tokenizer
-    # print(f'New tokenizer size: {len(tokenizer)}')
-    # # STEP C: Resize the model embeddings to match the checkpoint (151673)
-    # model.resize_token_embeddings(len(tokenizer))
+    # STEP B: Load the tokenizer from checkpoint to get the extended vocab
+    # This ensures we have the correct vocab size including special tokens
+    checkpoint_tokenizer = AutoTokenizer.from_pretrained(model_config['pretrained_checkpoint'])
+    checkpoint_vocab_size = len(checkpoint_tokenizer)
+    print(f'Checkpoint tokenizer size: {checkpoint_vocab_size}')
+    
+    # STEP C: Resize model embeddings if needed to match checkpoint
+    current_vocab_size = len(tokenizer)
+    if checkpoint_vocab_size != current_vocab_size:
+        print(f'  - Resizing embeddings from {current_vocab_size} to {checkpoint_vocab_size}')
+        model.resize_token_embeddings(checkpoint_vocab_size)
+        # Use the checkpoint tokenizer which has the extended vocabulary
+        tokenizer = checkpoint_tokenizer
+        print(f'  - Using checkpoint tokenizer with {len(tokenizer)} tokens')
     
     # STEP D: Load the adapters (PeftModel)
-    # Since FastLanguageModel wraps the model, we access the internal model to load adapters if needed,
-    # but usually, we can just load the adapter on top.
     model.load_adapter(model_config['pretrained_checkpoint'])
 
     print(f"  - Loaded model with {len(tokenizer)} tokens in vocabulary")
