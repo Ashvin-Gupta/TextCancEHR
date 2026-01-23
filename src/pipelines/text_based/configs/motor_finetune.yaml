@@ -1,0 +1,106 @@
+# MOTOR Piecewise Exponential Time-to-Event Configuration
+# Based on: "MOTOR: A Time-To-Event Foundation Model For Structured Medical Records"
+
+# Experiment mode:
+#   - "no_pretrain": Load base model with token extension, train only MOTOR head
+#   - "pretrained_motor": Load pretrained checkpoint with LoRA, train only MOTOR head (freeze LLM + LoRA)
+#   - "pretrained_motor_lora": Load pretrained checkpoint, train MOTOR head + LoRA adapters
+experiment:
+  mode: "pretrained_motor_lora"  # Change to your desired mode
+
+model:
+  # Base model name (used for loading base model in no_pretrain mode or as reference for LoRA loading)
+  unsloth_model: "unsloth/Qwen3-8B-Base-unsloth-bnb-4bit"
+  
+  # Hidden size of the LLM (must match model architecture)
+  hidden_size: 4096  # Qwen3-8B hidden size
+  
+  # Max sequence length
+  max_length: 8192
+  
+  # Path to pretrained checkpoint with LoRA adapters (required for pretrained_motor and pretrained_motor_lora modes)
+  # This should point to your continued pretraining checkpoint (e.g., from llm_pretrain2.py)
+  pretrained_checkpoint: "/data/scratch/qc25022/pancreas/experiments/Pretrain-Qwen3-8B-Pancreas-Raw/checkpoint-19640"  # e.g., "/path/to/pretrained/final_model"
+  
+  # Whether to freeze the base LLM (recommended: True for probe, False for finetune)
+  freeze_llm: true
+  
+  # Whether to train LoRA adapters (overridden by experiment mode if using pretrained_motor_lora)
+  train_lora: false
+
+motor:
+  # Number of time pieces for piecewise exponential
+  num_pieces: 6
+  
+  # Piece boundaries in days: [start, end)
+  # Default covers: 0-1mo, 1-3mo, 3-6mo, 6-12mo, 1-2yr, 2+yr
+  piece_boundaries:
+    - [0, 30]
+    - [30, 90]
+    - [90, 180]
+    - [180, 365]
+    - [365, 730]
+    - [730, 100000]  # Use large number instead of inf for YAML
+  
+  # Intermediate dimension for low-rank factorization
+  intermediate_dim: 64
+
+data:
+  data_dir: "/data/scratch/qc25022/pancreas/tokenised_data_word_level/cprd_upgi/"
+  vocab_filepath: "/data/scratch/qc25022/pancreas/tokenised_data_word_level/cprd_upgi/vocab.csv"
+  labels_filepath: "/data/scratch/qc25022/upgi/master_subject_labels.csv"
+  medical_lookup_filepath: "/data/home/qc25022/CancEHR-Training/src/resources/MedicalDictTranslation2.csv"
+  lab_lookup_filepath: "/data/home/qc25022/CancEHR-Training/src/resources/LabLookUP.csv"
+  region_lookup_filepath: "/data/home/qc25022/CancEHR-Training/src/resources/RegionLookUp.csv"
+  time_lookup_filepath: "/data/home/qc25022/CancEHR-Training/src/resources/TimeLookUp.csv"
+  
+  # Data type: 'raw' or 'binned'
+  data_type: "raw"
+  
+  # Max sequence length for tokenization
+  max_length: 8192
+  
+  # How to handle sequences longer than max_length
+  # Options: 'truncate', 'skip', 'warn', 'error'
+  handle_long_sequences: "truncate"
+  
+  # Sort by length for efficient batching
+  sort_by_length: true
+
+training:
+  # Output directory for checkpoints and logs
+  output_dir: "/data/scratch/qc25022/pancreas/experiments/motor-tte"
+  
+  # Training hyperparameters
+  epochs: 10
+  batch_size: 4
+  eval_batch_size: 4
+  learning_rate: 1e-4
+  weight_decay: 0.01
+  warmup_steps: 100
+  
+  # Gradient settings
+  gradient_accumulation_steps: 4
+  
+  # Precision
+  fp16: false
+  bf16: true
+  load_in_4bit: true
+  
+  # Logging and evaluation
+  logging_steps: 10
+  eval_steps: 100
+  save_steps: 500
+  save_total_limit: 2
+  
+  # Early stopping
+  early_stopping_patience: 5
+  early_stopping_threshold: 0.0
+  
+  # DataLoader
+  dataloader_num_workers: 4
+
+wandb:
+  enabled: true
+  project: "motor-tte"
+  run_name: "motor-probe-qwen3-8b"
