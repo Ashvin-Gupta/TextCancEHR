@@ -100,10 +100,20 @@ def print_trajectory_summary(trajectory: RiskTrajectory, patient_idx: int) -> No
     print(f"  Min Risk Score:       {np.min(trajectory.risk_scores):.4f}")
     print(f"  Mean Risk Score:      {np.mean(trajectory.risk_scores):.4f}")
     
-    print(f"\n  🔝 Top 10 High-Risk Positions:")
-    for pos, score, token in trajectory.top_risk_positions[:10]:
-        token_display = token.replace('\n', '\\n')[:20]
-        print(f"      Position {pos:5d}: {score:+.4f}  '{token_display}'")
+    print(f"\n  🔝 Top 10 High-Risk Positions (with context):")
+    context_window = 10  # Show 10 tokens before and after
+    for i, (pos, score, token) in enumerate(trajectory.top_risk_positions[:10], 1):
+        # Get surrounding context
+        start_pos = max(0, pos - context_window)
+        end_pos = min(len(trajectory.tokens), pos + context_window + 1)
+        
+        # Reconstruct text around this position
+        before_text = "".join(trajectory.tokens[start_pos:pos])
+        after_text = "".join(trajectory.tokens[pos+1:end_pos])
+        
+        print(f"\n      {i}. Position {pos}: Score={score:+.4f}")
+        print(f"         Token: '{token}'")
+        print(f"         Context: ...{before_text[-80:]}[{token}]{after_text[:80]}...")
 
 
 def analyze_patient_samples(

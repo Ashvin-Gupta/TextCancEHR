@@ -1,7 +1,7 @@
 #!/bin/bash
 #$ -cwd                 
 #$ -pe smp 8
-#$ -l h_rt=0:20:0
+#$ -l h_rt=1:0:0
 #$ -l h_vmem=11G
 #$ -l gpu=1
 #$ -l gpu_type=ampere
@@ -28,9 +28,15 @@ echo "Starting experiment from directory: $(pwd) Interpretability"
 
 # # Run the fine-tuning script
 python -m src.pipelines.text_based.analyze_classifier_interpretability \
---config_filepath src/pipelines/text_based/configs/llm_classify_pretrained_cls_lora.yaml \
---checkpoint_path /data/scratch/qc25022/pancreas/experiments/lora-6-month-logistic-raw/checkpoint-7856 \
---output_dir ./interpretability_results
---num_samples 10
+    --config_filepath src/pipelines/text_based/configs/llm_classify_pretrained_cls_lora.yaml \
+    --checkpoint_path /data/scratch/qc25022/pancreas/experiments/lora-6-month-logistic-raw/checkpoint-7856 \
+    --output_dir ./interpretability_results
+    --num_samples 10
+
+python -m src.pipelines.text_based.feature_ablation_analysis \
+    --config_filepath src/pipelines/text_based/configs/llm_classify_pretrained_cls_lora.yaml \
+    --checkpoint_path /data/scratch/qc25022/pancreas/experiments/lora-6-month-logistic-raw/checkpoint-7856 \
+    --output_dir ./ablation_results \
+    --num_samples 10
 
 echo "Interpretability analysis complete!"
