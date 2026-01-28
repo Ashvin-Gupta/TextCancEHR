@@ -236,8 +236,8 @@ def compute_risk_trajectory(
         else:
             hidden_states = outputs.hidden_states[-1]
     
-    # Move to CPU for analysis
-    hidden_states = hidden_states[0].cpu().numpy()  # (seq_len, hidden_size)
+    # Move to CPU for analysis (convert to float32 since numpy doesn't support bfloat16)
+    hidden_states = hidden_states[0].float().cpu().numpy()  # (seq_len, hidden_size)
     
     # Apply classifier weights to get log-odds at each position
     # logits[t] = W @ h[t] + b
