@@ -1,25 +1,30 @@
 #!/bin/bash
-#SBATCH --job-name=ig_analysis
-#SBATCH --output=logs/ig_analysis_%j.out
-#SBATCH --error=logs/ig_analysis_%j.err
-#SBATCH --time=02:00:00
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=32G
-#SBATCH --gres=gpu:1
-#SBATCH --partition=gpu
+#$ -cwd                 
+#$ -pe smp 8
+#$ -l h_rt=1:0:0
+#$ -l h_vmem=11G
+#$ -l gpu=1
+#$ -l gpu_type=ampere
+#$ -j n
+#$ -o /data/home/qc25022/TextCancEHR/HPC_Interpretability/logo/
+#$ -e /data/home/qc25022/TextCancEHR/HPC_Interpretability/loge/
 
-# Integrated Gradients Analysis Script
-# Computes IG attributions for LLM classifier
+set -e 
 
-echo "=========================================="
-echo "Integrated Gradients Analysis"
-echo "=========================================="
-echo "Start time: $(date)"
-echo "Job ID: $SLURM_JOB_ID"
-echo "Node: $SLURM_NODELIST"
+# Set the base directory for your project
+BASE_DIR="/data/home/qc25022/TextCancEHR"
 
+export WANDB_API_KEY="3256683a0a9a004cf52e04107a3071099a53038e"
+
+# --- Environment Setup ---
+module load intel intel-mpi python
+source /data/home/qc25022/CancEHR-Training/venv/bin/activate
+
+# --- Execute from Project Root ---
+# Change to the base directory before running the python command
+cd "${BASE_DIR}"
+
+echo "Starting experiment from directory: $(pwd) Interpretability"
 # Configuration
 CONFIG_PATH="src/pipelines/text_based/configs/llm_classify_pretrained_cls_lora.yaml"
 CHECKPOINT_PATH="/data/scratch/qc25022/pancreas/experiments/lora-6-month-logistic-raw/checkpoint-7856"
