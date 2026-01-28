@@ -31,5 +31,6 @@ python -m src.pipelines.text_based.analyze_classifier_interpretability \
 --config_filepath src/pipelines/text_based/configs/llm_classify_pretrained_cls_lora.yaml \
 --checkpoint_path /data/scratch/qc25022/pancreas/experiments/lora-6-month-logistic-raw/checkpoint-7856 \
 --output_dir ./interpretability_results
+--num_samples 10
 
 echo "Interpretability analysis complete!"
