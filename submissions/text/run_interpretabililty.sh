@@ -1,7 +1,7 @@
 #!/bin/bash
 #$ -cwd                 
-#$ -pe smp 4
-#$ -l h_rt=0:10:0
+#$ -pe smp 8
+#$ -l h_rt=0:20:0
 #$ -l h_vmem=11G
 #$ -l gpu=1
 #$ -l gpu_type=ampere
