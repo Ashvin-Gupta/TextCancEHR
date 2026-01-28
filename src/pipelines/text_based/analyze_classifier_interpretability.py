@@ -89,7 +89,7 @@ def print_weight_analysis_summary(weight_analysis: WeightAnalysis) -> None:
 
 def print_trajectory_summary(trajectory: RiskTrajectory, patient_idx: int) -> None:
     """Print a formatted summary of a risk trajectory."""
-    label_str = "Cancer" if trajectory.true_label == 1 else "Control"
+    label_str = "Cancer" if trajectory.true_label > 0 else "Control"
     
     print(f"\n📋 Patient {patient_idx} - True Label: {label_str}")
     print("-" * 60)
@@ -150,6 +150,10 @@ def analyze_patient_samples(
     
     print(f"  Found {len(cancer_indices)} cancer patients")
     print(f"  Found {len(control_indices)} control patients")
+    if cancer_indices:
+        sample_cancer_labels = [dataset[i]['label'].item() if torch.is_tensor(dataset[i]['label']) else dataset[i]['label'] 
+                            for i in cancer_indices[:5]]
+        print(f"  Sample cancer labels: {sample_cancer_labels}")
     
     # Sample from each class
     cancer_sample = random.sample(cancer_indices, min(num_samples, len(cancer_indices)))
