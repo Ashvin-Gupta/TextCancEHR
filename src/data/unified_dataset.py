@@ -34,7 +34,7 @@ class UnifiedEHRDataset(Dataset):
             self.patient_records = self._load_data(data_dir, split, limit=1)
         else:
             # Chaning to 5 to see result and inference
-            self.patient_records = self._load_data(data_dir, split)
+            self.patient_records = self._load_data(data_dir, split, limit=5)
 
     def _load_mappings(self, vocab_file, labels_file, medical_lookup_file, lab_lookup_file, region_lookup_file, time_lookup_file):
         """Loads all vocabularies, translation lookups, and label information."""

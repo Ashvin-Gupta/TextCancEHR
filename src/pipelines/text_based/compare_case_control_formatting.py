@@ -246,7 +246,7 @@ def main(config_path: str, max_samples: int = None):
     
     # Analyze both groups
     cases_stats = analyze_text_formatting(case_texts, "Cases")
-    controls_stats = analyze_text_formatting(controls_texts, "Controls")
+    controls_stats = analyze_text_formatting(control_texts, "Controls")
     
     # Compare
     print("\n" + "=" * 80)
