@@ -154,9 +154,9 @@ class ClassificationCollator:
             # Final safety check
             final_len = encoded['input_ids'].size(1)
             if final_len > self.max_length:
-                # This should never happen, but just in case
-                encoded['input_ids'] = encoded['input_ids'][:, :self.max_length]
-                encoded['attention_mask'] = encoded['attention_mask'][:, :self.max_length]
+                # Truncate from the START to preserve the EOS token at the end
+                encoded['input_ids'] = encoded['input_ids'][:, -self.max_length:]
+                encoded['attention_mask'] = encoded['attention_mask'][:, -self.max_length:]
             
             encoded_list.append(encoded)
         
