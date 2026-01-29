@@ -17,12 +17,12 @@ model:
 wandb:
   enabled: true
   project: "Pretrain-Qwen3-8B-Pancreas-classification-logisitc"
-  run_name: "no-pretrain-12-month-logistic-8192"  # Optional explicit run name
+  run_name: "no-pretrain-6-month"  # Optional explicit run name
 
 training:
-  output_dir: "/data/scratch/qc25022/pancreas/experiments/no-pretrain-12-month-logistic-8192"
+  output_dir: "/data/scratch/qc25022/pancreas/experiments/no-pretrain-6-month"
   overwrite_output_dir: true
-  epochs: 20
+  epochs: 1
   batch_size: 4
   eval_batch_size: 4
   learning_rate: 1e-5
@@ -37,11 +37,11 @@ training:
   save_total_limit: 2
   load_in_4bit: true
   multi_label: false  # Set true once datasets + trainer support multi-label outputs
-  early_stopping_patience: 5
-  early_stopping_threshold: 0.001
+  # early_stopping_patience: 5
+  # early_stopping_threshold: 0.001
 
 data:
-  cutoff_months: 12
+  cutoff_months: 6
   data_dir: "/data/scratch/qc25022/pancreas/tokenised_data_word_level/cprd_upgi/"
   vocab_filepath: "/data/scratch/qc25022/pancreas/tokenised_data_word_level/cprd_upgi/vocab.csv"
   labels_filepath: "/data/scratch/qc25022/upgi/master_subject_labels.csv"
@@ -49,5 +49,5 @@ data:
   lab_lookup_filepath: "/data/home/qc25022/CancEHR-Training/src/resources/LabLookUP.csv"
   region_lookup_filepath: "/data/home/qc25022/CancEHR-Training/src/resources/RegionLookUp.csv"
   time_lookup_filepath: "/data/home/qc25022/CancEHR-Training/src/resources/TimeLookUp.csv"
-  max_length: 8192
+  max_length: 12000
 
