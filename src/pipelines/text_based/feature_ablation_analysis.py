@@ -78,7 +78,9 @@ def load_medical_terms(medical_dict_path: str, max_terms: int = 382) -> Dict[str
     for _, row in terms_of_interest.iterrows():
         code = row['code']
         term = row['term']
-        term_to_code[term.lower()] = code
+        # Skip NaN or non-string terms
+        if isinstance(term, str):
+            term_to_code[term.lower()] = code
     
     return term_to_code
 
