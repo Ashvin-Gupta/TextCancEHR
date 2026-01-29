@@ -164,7 +164,7 @@ def compute_integrated_gradients(
     n_steps: int = 50,
     max_length: int = 12000,
     device: str = "cuda",
-    use_embedding_layer: bool = False
+    use_embedding_layer: bool = True
 ) -> TokenAttributions:
     """
     Compute Integrated Gradients attributions for a text input.
@@ -184,10 +184,12 @@ def compute_integrated_gradients(
     """
     model.eval()
     
-    # Convert model to float32 for gradient computation
+    # Convert model to float32 for gradient computation (required for some operations)
+    # Store original dtype to restore later
     original_dtype = next(model.parameters()).dtype
     if original_dtype == torch.bfloat16:
-        model = model.float()
+        print(f"  Converting model from {original_dtype} to float32 for gradient computation...")
+        model.to(torch.float32)
     
     # Tokenize
     encoding = tokenizer(
@@ -198,8 +200,9 @@ def compute_integrated_gradients(
         padding=False
     )
     
-    input_ids = encoding["input_ids"].to(device)
-    attention_mask = encoding["attention_mask"].to(device)
+    # Ensure input_ids and attention_mask are Long type (required for embeddings)
+    input_ids = encoding["input_ids"].to(device).long()
+    attention_mask = encoding["attention_mask"].to(device).long()
     
     seq_len = input_ids.shape[1]
     
@@ -270,9 +273,10 @@ def compute_integrated_gradients(
     token_ids_np = input_ids[0].cpu().numpy()
     tokens = [tokenizer.decode([tid]) for tid in token_ids_np]
     
-    # Restore original dtype
+    # Restore original dtype (in-place conversion)
     if original_dtype == torch.bfloat16:
-        model = model.bfloat16()
+        print(f"  Restoring model to {original_dtype}...")
+        model.to(original_dtype)
     
     return TokenAttributions(
         attributions=attributions,

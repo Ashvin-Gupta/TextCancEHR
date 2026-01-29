@@ -90,6 +90,13 @@ def load_classifier_for_analysis(
         tokenizer=tokenizer
     )
     
+    # Match classifier head dtype to base model dtype
+    # This is critical for BFloat16 models from unsloth
+    base_dtype = next(base_model.parameters()).dtype
+    if base_dtype == torch.bfloat16:
+        print(f"  - Converting classifier head to {base_dtype}")
+        classifier_model.classifier = classifier_model.classifier.to(base_dtype)
+    
     # Load trained classifier weights
     bin_path = os.path.join(checkpoint_path, "pytorch_model.bin")
     safe_path = os.path.join(checkpoint_path, "model.safetensors")
