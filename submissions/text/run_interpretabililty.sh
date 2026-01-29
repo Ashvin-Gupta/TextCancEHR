@@ -27,11 +27,11 @@ cd "${BASE_DIR}"
 echo "Starting experiment from directory: $(pwd) Interpretability"
 
 # # Run the fine-tuning script
-python -m src.pipelines.text_based.analyze_classifier_interpretability \
-    --config_filepath src/pipelines/text_based/configs/llm_classify_pretrained_cls_lora.yaml \
-    --checkpoint_path /data/scratch/qc25022/pancreas/experiments/lora-6-month-logistic-raw/checkpoint-7856 \
-    --output_dir ./interpretability_results
-    --num_samples 10
+# python -m src.pipelines.text_based.analyze_classifier_interpretability \
+#     --config_filepath src/pipelines/text_based/configs/llm_classify_pretrained_cls_lora.yaml \
+#     --checkpoint_path /data/scratch/qc25022/pancreas/experiments/lora-6-month-logistic-raw/checkpoint-7856 \
+#     --output_dir ./interpretability_results
+#     --num_samples 10
 
 python -m src.pipelines.text_based.feature_ablation_analysis \
     --config_filepath src/pipelines/text_based/configs/llm_classify_pretrained_cls_lora.yaml \
